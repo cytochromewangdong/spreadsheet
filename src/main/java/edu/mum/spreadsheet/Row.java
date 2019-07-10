@@ -1,15 +1,25 @@
 package edu.mum.spreadsheet;
 
-public abstract class Row extends ContainedSubject<Row> {
+import java.util.HashMap;
+import java.util.Map;
+
+public class Row extends ContainedSubject<Row> {
 	protected final int row;
-	public Row(WorkSheet container, int row) {
+	private Map<Integer, Cell> data = new HashMap<>();
+
+	public Row(SpreadSheet container, int row) {
 		super(container);
 		this.row = row;
 	}
 
-	public abstract Cell getCell(int index);
-
 	public int getEventType() {
 		return EventTypeConstant.ROW_CHANGE_EVENT;
+	}
+
+	public Cell getCell(int column) {
+		if (!data.containsKey(column)) {
+			data.put(column, new Cell(this.getContainer(), this.row, column));
+		}
+		return data.get(column);
 	}
 }

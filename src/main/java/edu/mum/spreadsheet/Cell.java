@@ -7,14 +7,17 @@ import java.util.List;
 import edu.mum.spreadsheet.ex.CircularReferenceException;
 import edu.mum.spreadsheet.expression.Expression;
 import edu.mum.spreadsheet.expression.NullExpression;
+import edu.mum.spreadsheet.expression.NumberValueExpression;
+import edu.mum.spreadsheet.expression.StringValueExpression;
+import edu.mum.spreadsheet.observer.Event;
 
-public abstract class Cell extends ContainedSubject<Cell> implements Contained, ChangeListener<Cell>, Expression {
+public class Cell extends ContainedSubject<Cell> implements Contained, ChangeListener<Cell>, Expression {
 
 	protected final int row;
 	protected final int column;
 	protected List<Cell> relatedCell = new ArrayList<>();
 
-	public Cell(Sheet container, int row, int column) {
+	public Cell(SpreadSheet container, int row, int column) {
 		super(container);
 		this.row = row;
 		this.column = column;
@@ -68,11 +71,20 @@ public abstract class Cell extends ContainedSubject<Cell> implements Contained, 
 		}
 	}
 
-	public abstract void setValue(String value);
-
-	public abstract void setValue(Number value);
-
 	public int getEventType() {
 		return EventTypeConstant.CELL_VALUE_CHANGE_EVENT;
+	}
+
+	public void setValue(String value) {
+		this.setExpression(new StringValueExpression(value));
+	}
+
+	public void setValue(Number value) {
+		this.setExpression(new NumberValueExpression(value));
+	}
+
+	@Override
+	public void onChange(Event<Cell> event) {
+		this.getExpression().evaluate();
 	}
 }
