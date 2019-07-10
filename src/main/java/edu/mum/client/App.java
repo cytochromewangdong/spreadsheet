@@ -10,8 +10,9 @@ public class App
 {
     public static void main( String[] args )
     {
-    	SpreadSheet sheet = new SpreadSheet();
-    	Director director = new Director();
-    	director.fillSampleSheet(sheet);
+		SpreadSheet sheet = new SpreadSheet();
+		Director director = new Director();
+		director.fillSampleSheet(sheet);
+		System.out.println(sheet);
     }
 }

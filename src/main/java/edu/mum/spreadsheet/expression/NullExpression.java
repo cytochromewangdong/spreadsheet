@@ -9,7 +9,7 @@ public class NullExpression implements Expression {
 
 	@Override
 	public String getValue() {
-		return null;
+		return "";
 	}
 
 	@Override

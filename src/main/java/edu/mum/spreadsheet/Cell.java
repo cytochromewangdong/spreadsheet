@@ -13,6 +13,7 @@ import edu.mum.spreadsheet.observer.Event;
 
 public class Cell extends ContainedSubject<Cell> implements Contained, ChangeListener<Cell>, Expression {
 
+	private static final String paddingFormat = "%-15s";
 	protected final int row;
 	protected final int column;
 	protected List<Cell> relatedCell = new ArrayList<>();
@@ -86,5 +87,10 @@ public class Cell extends ContainedSubject<Cell> implements Contained, ChangeLis
 	@Override
 	public void onChange(Event<Cell> event) {
 		this.getExpression().evaluate();
+	}
+
+	@Override
+	public String toString() {
+		return String.format(paddingFormat, getValue());
 	}
 }

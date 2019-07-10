@@ -2,16 +2,17 @@ package edu.mum.spreadsheet;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import edu.mum.spreadsheet.ex.ValueException;
 
 public class SpreadSheet {
 	private Map<Integer, Row> data = new HashMap<>();
 
-	public Column getColumn(int Column)
-	{
+	public Column getColumn(int Column) {
 		return new Column(this, Column);
 	}
+
 	public Row getRow(int row) {
 		if (!data.containsKey(row)) {
 			data.put(row, new Row(this, row));
@@ -54,5 +55,18 @@ public class SpreadSheet {
 
 	public void afterCellChange(Cell cell) {
 
+	}
+
+	@Override
+	public String toString() {
+		var summary = data.keySet().stream().collect(Collectors.summarizingInt(x -> x));
+		int min = summary.getMin();
+		int max = summary.getMax();
+
+		String ret = "";
+		for (int i = min; i <= max; i++) {
+			ret += getRow(i).toString() + "\n";
+		}
+		return ret;
 	}
 }
