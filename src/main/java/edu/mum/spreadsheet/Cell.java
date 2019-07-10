@@ -62,7 +62,7 @@ public class Cell extends ContainedSubject<Cell> implements Contained, ChangeLis
 		try {
 			if (!isEvaluating) {
 				isEvaluating = true;
-
+				this.expression.evaluate();
 			} else {
 				throw new CircularReferenceException();
 			}

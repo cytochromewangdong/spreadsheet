@@ -8,6 +8,10 @@ import edu.mum.spreadsheet.ex.ValueException;
 public class SpreadSheet {
 	private Map<Integer, Row> data = new HashMap<>();
 
+	public Column getColumn(int Column)
+	{
+		return new Column(this, Column);
+	}
 	public Row getRow(int row) {
 		if (!data.containsKey(row)) {
 			data.put(row, new Row(this, row));
