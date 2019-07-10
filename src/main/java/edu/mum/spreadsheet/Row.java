@@ -10,6 +10,6 @@ public abstract class Row extends ContainedSubject<Row> {
 	public abstract Cell getCell(int index);
 
 	public int getEventType() {
-		return 101;
+		return EventTypeConstant.ROW_CHANGE_EVENT;
 	}
 }

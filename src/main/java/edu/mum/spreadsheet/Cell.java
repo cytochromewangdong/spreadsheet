@@ -49,6 +49,6 @@ public abstract class Cell extends ContainedSubject<Cell> implements Contained, 
 	public abstract void setValue(Number value);
 
 	public int getEventType() {
-		return 100;
+		return EventTypeConstant.CELL_VALUE_CHANGE_EVENT;
 	}
 }
