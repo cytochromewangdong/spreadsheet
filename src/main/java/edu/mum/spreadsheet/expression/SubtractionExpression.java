@@ -1,6 +1,6 @@
 package edu.mum.spreadsheet.expression;
 
-public class SubtractExpression extends BinaryExpression {
+public class SubtractionExpression extends BinaryExpression {
 
 	@Override
 	protected String getSymbol() {

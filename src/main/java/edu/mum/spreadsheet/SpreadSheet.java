@@ -3,7 +3,7 @@ package edu.mum.spreadsheet;
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.mum.spreadsheet.ex.ValueException;
+import edu.mum.spreadsheet.ex.ExpressionInvalidException;
 
 public class SpreadSheet {
 	private Map<Integer, Row> data = new HashMap<>();
@@ -35,12 +35,12 @@ public class SpreadSheet {
 		Cell currentCell = this.getCell(row, column);
 		if (expression.startsWith("\"")) {
 			if (expression.length() <= 1) {
-				throw new ValueException("Invalid Input");
+				throw new ExpressionInvalidException("Invalid Input");
 			}
 			if (expression.endsWith("\"")) {
 				currentCell.setValue(expression.substring(1, expression.length() - 1));
 			} else {
-				throw new ValueException("Invalid Input");
+				throw new ExpressionInvalidException("Invalid Input");
 			}
 			return;
 		}

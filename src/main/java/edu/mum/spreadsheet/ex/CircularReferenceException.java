@@ -1,6 +1,6 @@
 package edu.mum.spreadsheet.ex;
 
-public class CircularReferenceException extends RuntimeException {
+public class CircularReferenceException extends ExpressionInvalidException {
 
 	public CircularReferenceException() {
 		super();
