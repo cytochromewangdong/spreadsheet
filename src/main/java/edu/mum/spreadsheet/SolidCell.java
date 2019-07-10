@@ -1,10 +1,15 @@
 package edu.mum.spreadsheet;
 
-import edu.mum.spreadsheet.ex.ValueExpression;
 import edu.mum.spreadsheet.expression.NumberValueExpression;
 import edu.mum.spreadsheet.expression.StringValueExpression;
+import edu.mum.spreadsheet.observer.Event;
 
 public class SolidCell extends Cell {
+
+
+	public SolidCell(Sheet container, int row, int column) {
+		super(container, row, column);
+	}
 
 	@Override
 	public String getValue() {
@@ -24,18 +29,9 @@ public class SolidCell extends Cell {
 		this.setExpression(new NumberValueExpression(value));
 	}
 
-	public void setExpression(String text) {
-		if (text.startsWith("\"")) {
-			if (text.length() <= 1) {
-				throw new ValueExpression("Invalid Input");
-			}
-			if (text.endsWith("\"")) {
-				setValue(text.substring(1, text.length() - 1));
-			} else {
-				throw new ValueExpression("Invalid Input");
-			}
-			return;
-		}
-		// check expression
+	@Override
+	public void onChange(Event<Cell> event) {
+		this.getExpression().evaluate();
 	}
+
 }

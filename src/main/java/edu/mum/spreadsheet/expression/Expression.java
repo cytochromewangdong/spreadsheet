@@ -5,4 +5,8 @@ public interface Expression {
 	public String getValue();
 
 	public Number getNumberValue();
+	
+	default public void evaluate() {
+		
+	}
 }

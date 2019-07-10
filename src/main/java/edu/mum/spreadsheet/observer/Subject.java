@@ -6,11 +6,11 @@ import java.util.Set;
 import edu.mum.spreadsheet.ChangeListener;
 
 public abstract class Subject<T> {
-	Set<ChangeListener> list = new LinkedHashSet<>();
-	public void registerListener(ChangeListener listener) {
+	Set<ChangeListener<T>> list = new LinkedHashSet<>();
+	public void registerListener(ChangeListener<T> listener) {
 		list.add(listener);
 	}
-	public void removeListener(ChangeListener listener)
+	public void removeListener(ChangeListener<T> listener)
 	{
 		list.remove(listener);
 	}

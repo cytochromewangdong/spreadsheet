@@ -1,4 +1,4 @@
-package edu.mum.spreadsheet;
+package edu.mum.client;
 
 /**
  * Hello world!
