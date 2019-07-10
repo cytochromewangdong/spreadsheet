@@ -3,6 +3,7 @@ package edu.mum.spreadsheet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import edu.mum.spreadsheet.ex.ExpressionInvalidException;
 
@@ -59,14 +60,9 @@ public class SpreadSheet {
 
 	@Override
 	public String toString() {
-		var summary = data.keySet().stream().collect(Collectors.summarizingInt(x -> x));
-		int min = summary.getMin();
-		int max = summary.getMax();
-
-		String ret = "";
-		for (int i = min; i <= max; i++) {
-			ret += getRow(i).toString() + "\n";
-		}
-		return ret;
+		int max = data.keySet().stream().max(Integer::compareTo).orElseGet(() -> 0);
+		return IntStream.range(1, max + 1)
+				.mapToObj(idx -> getRow(idx).toString())
+				.collect(Collectors.joining("\n"));
 	}
 }
