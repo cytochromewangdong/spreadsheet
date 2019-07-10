@@ -2,7 +2,7 @@ package edu.mum.spreadsheet;
 
 public abstract class Row extends ContainedSubject<Row> {
 	protected final int row;
-	public Row(SolidSheet container, int row) {
+	public Row(WorkSheet container, int row) {
 		super(container);
 		this.row = row;
 	}

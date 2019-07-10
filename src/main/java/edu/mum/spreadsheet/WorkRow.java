@@ -3,9 +3,9 @@ package edu.mum.spreadsheet;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SolidRow extends Row {
+public class WorkRow extends Row {
 
-	public SolidRow(SolidSheet container, int row) {
+	public WorkRow(WorkSheet container, int row) {
 		super(container, row);
 	}
 
@@ -13,7 +13,7 @@ public class SolidRow extends Row {
 
 	public Cell getCell(int column) {
 		if (!data.containsKey(column)) {
-			data.put(column, new SolidCell(this.getContainer(), this.row, column));
+			data.put(column, new WorkCell(this.getContainer(), this.row, column));
 		}
 		return data.get(column);
 	}

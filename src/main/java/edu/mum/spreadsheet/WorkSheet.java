@@ -5,13 +5,13 @@ import java.util.Map;
 
 import edu.mum.spreadsheet.ex.ValueException;
 
-public class SolidSheet extends Sheet{
+public class WorkSheet extends Sheet{
 	private Map<Integer, Row> data = new HashMap<>();
 
 	public Row getRow(int row) {
 		if(!data.containsKey(row))
 		{
-			data.put(row, new SolidRow(this, row));
+			data.put(row, new WorkRow(this, row));
 		}
 		return data.get(row);
 	}

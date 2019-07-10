@@ -6,6 +6,7 @@ public class StringValueExpression implements Expression {
 	public StringValueExpression(String value) {
 		assert (value != null);
 		this.value = value;
+		
 	}
 
 	@Override
@@ -20,6 +21,11 @@ public class StringValueExpression implements Expression {
 		} catch (Exception e) {
 			return 0;
 		}
+	}
+
+	@Override
+	public String getRawString() {
+		return this.value;
 	}
 
 }

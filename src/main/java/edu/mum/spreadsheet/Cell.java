@@ -4,10 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import edu.mum.spreadsheet.ex.CircularReferenceException;
 import edu.mum.spreadsheet.expression.Expression;
 import edu.mum.spreadsheet.expression.NullExpression;
 
-public abstract class Cell extends ContainedSubject<Cell> implements Contained, ChangeListener<Cell> {
+public abstract class Cell extends ContainedSubject<Cell> implements Contained, ChangeListener<Cell>, Expression {
 
 	protected final int row;
 	protected final int column;
@@ -40,9 +41,32 @@ public abstract class Cell extends ContainedSubject<Cell> implements Contained, 
 		this.postAll(this);
 	}
 
-	public abstract String getValue();
+	public String getValue() {
+		return getExpression().getValue();
+	}
 
-	public abstract Number getNumberValue();
+	public Number getNumberValue() {
+		return getExpression().getNumberValue();
+	}
+
+	public String getRawString() {
+		return getExpression().getRawString();
+	}
+
+	private boolean isEvaluating;
+
+	public void evaluate() {
+		try {
+			if (!isEvaluating) {
+				isEvaluating = true;
+
+			} else {
+				throw new CircularReferenceException();
+			}
+		} finally {
+			isEvaluating = false;
+		}
+	}
 
 	public abstract void setValue(String value);
 

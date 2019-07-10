@@ -16,4 +16,9 @@ public class NullExpression implements Expression {
 	public Number getNumberValue() {
 		return 0;
 	}
+
+	@Override
+	public String getRawString() {
+		return null;
+	}
 }
