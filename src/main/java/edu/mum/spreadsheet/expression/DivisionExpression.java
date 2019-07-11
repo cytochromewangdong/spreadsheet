@@ -3,8 +3,8 @@ package edu.mum.spreadsheet.expression;
 public class DivisionExpression extends BinaryExpression {
 
 	@Override
-	protected String getSymbol() {
-		return "/";
+	protected SymbolToken getSymbol() {
+		return SymbolToken.Division;
 	}
 
 	@Override

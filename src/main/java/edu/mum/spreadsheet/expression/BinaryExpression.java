@@ -2,7 +2,7 @@ package edu.mum.spreadsheet.expression;
 
 public abstract class BinaryExpression implements Expression {
 
-	protected abstract String getSymbol();
+	protected abstract SymbolToken getSymbol();
 
 	protected Number cachedValue;
 

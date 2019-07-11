@@ -1,0 +1,166 @@
+package edu.mum.spreadsheet;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+
+import edu.mum.spreadsheet.ex.ExpressionInvalidException;
+import edu.mum.spreadsheet.expression.Expression;
+import edu.mum.spreadsheet.expression.NumberValueExpression;
+import edu.mum.spreadsheet.expression.SymbolToken;
+
+public class Tokenizer {
+
+	private static final String tokenChars;
+	private static final Map<Character, SymbolToken> tokenMapper = new HashMap<>();
+	static {
+		StringBuilder sb = new StringBuilder();
+		for (SymbolToken t : SymbolToken.values()) {
+			sb.append(t.getSymbol());
+			tokenMapper.put(t.getSymbol(), t);
+		}
+		tokenChars = sb.toString();
+	}
+	private static String startChars = "[(";
+	// private static String endChars = "])";
+
+	private static String splitor = tokenChars + startChars + ")";
+
+	// private static String allInOne = tokenChars + startChars + endChars;
+	private static Expression parseExpression(List<Object> list) {
+		Stack<Object> eleStack = new Stack<>();
+		Stack<Object> symbolStack = new Stack<>();
+		Character leftParenthesis = '(';
+		Character rightParenthesis = ')';
+		for (Object o : list) {
+			if (o instanceof SymbolToken) {
+				SymbolToken currToken = (SymbolToken) o;
+				if (!symbolStack.isEmpty()) {
+
+					Object obj = symbolStack.peek();
+					if (obj instanceof SymbolToken) {
+
+						SymbolToken topOldToken = (SymbolToken) obj;
+						if (!currToken.hasHigherPriority(topOldToken)) {
+							// Remove top
+							symbolStack.pop();
+							Expression right = (Expression) eleStack.pop();
+							Expression left = (Expression) eleStack.pop();
+							eleStack.push(topOldToken.create(left, right));
+						}
+					}
+				}
+				symbolStack.push(o);
+				continue;
+			}
+			if (o instanceof Character) {
+				Character c = (Character) o;
+				if (c.equals(rightParenthesis)) {
+					SymbolToken token = (SymbolToken) symbolStack.pop();
+					//
+					if (!leftParenthesis.equals(symbolStack.pop())) {
+						throw new ExpressionInvalidException("Invalid exception!");
+					}
+					Expression right = (Expression) eleStack.pop();
+					Expression left = (Expression) eleStack.pop();
+					if(!leftParenthesis.equals(eleStack.pop()))
+					{
+						throw new ExpressionInvalidException("Invalid exception!");	
+					}
+					eleStack.push(token.create(left, right));
+					continue;
+				} else {
+					// leftParenthesis
+//					eleStack.push(o);
+					symbolStack.push(o);
+					//  continue as symbol 
+				}
+			}
+			eleStack.push(o);
+		}
+		while(!symbolStack.isEmpty())
+		{
+			SymbolToken token = (SymbolToken) symbolStack.pop();
+			Expression right = (Expression) eleStack.pop();
+			Expression left = (Expression) eleStack.pop();
+			eleStack.push(token.create(left, right));
+		}
+		if(eleStack.size()!=1)
+		{
+			throw new ExpressionInvalidException("Invalid exception!");	
+		}
+		return (Expression)eleStack.pop();
+	}
+
+	private static List<Object> parseExpression(String expression, SpreadSheet sheet) {
+		List<Object> result = new ArrayList<>();
+		char[] ec = expression.trim().toCharArray();
+		StringBuilder collector = new StringBuilder();
+		boolean startCollectCell = false;
+		for (char c : ec) {
+			if (c == 0x20) {
+				continue;
+			}
+			if (splitor.indexOf(c) >= 0) {
+				if (collector.length() > 0) {
+					try {
+						Number v = Double.parseDouble(collector.toString());
+						result.add(new NumberValueExpression(v));
+						collector = new StringBuilder();
+					} catch (Exception ex) {
+						throw new ExpressionInvalidException(collector.toString() + " is not a valid number", ex);
+					}
+				}
+				if (c != '[') {
+					if (tokenMapper.containsKey(c)) {
+						result.add(tokenMapper.get(c));
+					} else {
+						result.add(c);
+					}
+				} else {
+					startCollectCell = true;
+				}
+				continue;
+			}
+			if (c == ']') {
+				if (!startCollectCell) {
+					throw new ExpressionInvalidException("] does not have start");
+				} else {
+					String cellExr = collector.toString();
+					collector = new StringBuilder();
+					result.add(parseCellExr(cellExr, sheet));
+				}
+				continue;
+			}
+
+			collector.append(c);
+		}
+		if (collector.length() > 0) {
+			Number v = Double.parseDouble(collector.toString());
+			result.add(new NumberValueExpression(v));
+		}
+		return result;
+	}
+
+	private static Cell parseCellExr(String cellExr, SpreadSheet sheet) {
+		int pos = cellExr.indexOf(",");
+		if (pos <= 0) {
+			throw new ExpressionInvalidException("Cell expression is not correct:[" + cellExr + "]");
+		}
+		try {
+			int row = Integer.parseInt(cellExr.substring(0, pos).trim());
+			int column = Integer.parseInt(cellExr.substring(pos + 1).trim());
+			return sheet.getCell(row, column);
+		} catch (Exception ex) {
+			throw new ExpressionInvalidException("Cell expression is not correct:[" + cellExr + "]", ex);
+		}
+	}
+
+	public static void main(String[] args) {
+		SpreadSheet sheet = new SpreadSheet();
+		// sheet.setCellValue(7, 2, "[1,2]+[2,2]+[3,2]+[4,2]+[5,2]");
+		parseExpression(Tokenizer.parseExpression("[1,2]+([2,2]+[3,2]+[4,2   ]+[5,2])+    99.9087", sheet));
+	}
+}
