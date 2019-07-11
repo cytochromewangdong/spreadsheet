@@ -34,22 +34,8 @@ public class SpreadSheet {
 	}
 
 	public void setExpression(int row, int column, String expression) {
-		expression = expression.trim();
 		Cell currentCell = this.getCell(row, column);
-		if (expression.startsWith("\"")) {
-			if (expression.length() <= 1) {
-				throw new ExpressionInvalidException("Invalid Input");
-			}
-			if (expression.endsWith("\"")) {
-				currentCell.setValue(expression.substring(1, expression.length() - 1));
-			} else {
-				throw new ExpressionInvalidException("Invalid Input");
-			}
-			return;
-		}
-		// TODO
-		// currentCell.setExpression(expression);
-		Tokenizer.parseExpression(expression, this, currentCell);
+		currentCell.setExpression(expression);
 	}
 
 	public void beforeCellChange(Cell cell) {

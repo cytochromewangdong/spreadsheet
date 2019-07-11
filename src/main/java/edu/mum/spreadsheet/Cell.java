@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mum.spreadsheet.ex.CircularReferenceException;
+import edu.mum.spreadsheet.ex.ExpressionInvalidException;
 import edu.mum.spreadsheet.expression.Expression;
 import edu.mum.spreadsheet.expression.NullExpression;
 import edu.mum.spreadsheet.expression.NumberValueExpression;
@@ -95,5 +96,21 @@ public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>
 	@Override
 	public String toString() {
 		return String.format(paddingFormat, getValue());
+	}
+	
+	public void setExpression(String expression) {
+		expression = expression.trim();
+		if (expression.startsWith("\"")) {
+			if (expression.length() <= 1) {
+				throw new ExpressionInvalidException("Invalid Input");
+			}
+			if (expression.endsWith("\"")) {
+				this.setValue(expression.substring(1, expression.length() - 1));
+			} else {
+				throw new ExpressionInvalidException("Invalid Input");
+			}
+			return;
+		}
+		Tokenizer.parseExpression(expression, this.getContainer(), this);
 	}
 }
