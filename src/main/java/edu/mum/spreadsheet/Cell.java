@@ -1,7 +1,6 @@
 package edu.mum.spreadsheet;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import edu.mum.spreadsheet.ex.CircularReferenceException;
@@ -11,7 +10,7 @@ import edu.mum.spreadsheet.expression.NumberValueExpression;
 import edu.mum.spreadsheet.expression.StringValueExpression;
 import edu.mum.spreadsheet.observer.Event;
 
-public class Cell extends ContainedSubject<Cell> implements Contained, ChangeListener<Cell>, Expression {
+public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>, Expression {
 
 	private static final String paddingFormat = "%-15s";
 	protected final int row;
@@ -34,12 +33,16 @@ public class Cell extends ContainedSubject<Cell> implements Contained, ChangeLis
 		return expression;
 	}
 
-	public void setExpression(Expression expression, Cell... relatedCells) {
+	public void setExpressionObj(Expression expression) {
+		this.setExpressionObj(expression, new ArrayList<>());
+	}
+
+	public void setExpressionObj(Expression expression, List<Cell> relatedCells) {
 		this.getContainer().beforeCellChange(this);
 		relatedCell.stream().forEach(c -> c.removeListener(this));
 		relatedCell.clear();
 		this.expression = expression;
-		relatedCell.addAll(Arrays.asList(relatedCells));
+		relatedCell.addAll(relatedCells);
 		relatedCell.stream().forEach(c -> c.registerListener(this));
 		this.getContainer().afterCellChange(this);
 		this.postAll(this);
@@ -77,11 +80,11 @@ public class Cell extends ContainedSubject<Cell> implements Contained, ChangeLis
 	}
 
 	public void setValue(String value) {
-		this.setExpression(new StringValueExpression(value));
+		this.setExpressionObj(new StringValueExpression(value));
 	}
 
 	public void setValue(Number value) {
-		this.setExpression(new NumberValueExpression(value));
+		this.setExpressionObj(new NumberValueExpression(value));
 	}
 
 	@Override

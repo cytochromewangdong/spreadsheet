@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
+import java.util.stream.Collectors;
 
 import edu.mum.spreadsheet.ex.ExpressionInvalidException;
 import edu.mum.spreadsheet.expression.Expression;
@@ -65,33 +66,30 @@ public class Tokenizer {
 					}
 					Expression right = (Expression) eleStack.pop();
 					Expression left = (Expression) eleStack.pop();
-					if(!leftParenthesis.equals(eleStack.pop()))
-					{
-						throw new ExpressionInvalidException("Invalid exception!");	
+					if (!leftParenthesis.equals(eleStack.pop())) {
+						throw new ExpressionInvalidException("Invalid exception!");
 					}
 					eleStack.push(token.create(left, right));
 					continue;
 				} else {
 					// leftParenthesis
-//					eleStack.push(o);
+					// eleStack.push(o);
 					symbolStack.push(o);
-					//  continue as symbol 
+					// continue as symbol
 				}
 			}
 			eleStack.push(o);
 		}
-		while(!symbolStack.isEmpty())
-		{
+		while (!symbolStack.isEmpty()) {
 			SymbolToken token = (SymbolToken) symbolStack.pop();
 			Expression right = (Expression) eleStack.pop();
 			Expression left = (Expression) eleStack.pop();
 			eleStack.push(token.create(left, right));
 		}
-		if(eleStack.size()!=1)
-		{
-			throw new ExpressionInvalidException("Invalid exception!");	
+		if (eleStack.size() != 1) {
+			throw new ExpressionInvalidException("Invalid exception!");
 		}
-		return (Expression)eleStack.pop();
+		return (Expression) eleStack.pop();
 	}
 
 	private static List<Object> parseExpression(String expression, SpreadSheet sheet) {
@@ -158,9 +156,23 @@ public class Tokenizer {
 		}
 	}
 
+	public static void parseExpression(String expression, SpreadSheet sheet, Cell cell) {
+		List<Object> list = parseExpression(expression, sheet);
+		List<Cell> related = list.stream().filter(e -> (e instanceof Cell)).map(e -> (Cell) e)
+				.collect(Collectors.toList());
+		Expression expressionObj = parseExpression(list);
+		cell.setExpressionObj(expressionObj, related);
+		cell.evaluate();
+
+	}
+
 	public static void main(String[] args) {
 		SpreadSheet sheet = new SpreadSheet();
-		// sheet.setCellValue(7, 2, "[1,2]+[2,2]+[3,2]+[4,2]+[5,2]");
-		parseExpression(Tokenizer.parseExpression("[1,2]+([2,2]+[3,2]+[4,2   ]+[5,2])+    99.9087", sheet));
+		sheet.setCellValue(1, 2, 10.0);
+		sheet.setCellValue(2, 2, 66.0);
+		sheet.setExpression(7, 2, "[1,2]+[2,2]+[3,2]+[4,2]+[5,2]+199");
+		// parseExpression(Tokenizer.parseExpression("[1,2]+([2,2]+[3,2]+[4,2 ]+[5,2])+
+		// 99.9087", sheet));
+		System.out.println(sheet);
 	}
 }

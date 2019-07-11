@@ -33,7 +33,8 @@ public class SpreadSheet {
 		this.getCell(row, column).setValue(val);
 	}
 
-	void setExpression(int row, int column, String expression) {
+	public void setExpression(int row, int column, String expression) {
+		expression = expression.trim();
 		Cell currentCell = this.getCell(row, column);
 		if (expression.startsWith("\"")) {
 			if (expression.length() <= 1) {
@@ -48,6 +49,7 @@ public class SpreadSheet {
 		}
 		// TODO
 		// currentCell.setExpression(expression);
+		Tokenizer.parseExpression(expression, this, currentCell);
 	}
 
 	public void beforeCellChange(Cell cell) {
