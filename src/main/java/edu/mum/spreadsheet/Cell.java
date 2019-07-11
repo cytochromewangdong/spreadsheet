@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.mum.spreadsheet.ex.CircularReferenceException;
-import edu.mum.spreadsheet.ex.ExpressionInvalidException;
-import edu.mum.spreadsheet.expression.Expression;
+import edu.mum.spreadsheet.expression.BridgeExpression;
+import edu.mum.spreadsheet.expression.CellExpression;
+import edu.mum.spreadsheet.expression.IlegalExpression;
 import edu.mum.spreadsheet.expression.NullExpression;
 import edu.mum.spreadsheet.expression.NumberValueExpression;
 import edu.mum.spreadsheet.expression.StringValueExpression;
 import edu.mum.spreadsheet.observer.Event;
 
-public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>, Expression {
+public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>, CellExpression {
 
 	private static final String paddingFormat = "%-15s";
 	protected final int row;
@@ -28,17 +29,17 @@ public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>
 		return this.getContainer().getRow(this.row);
 	}
 
-	private Expression expression = NullExpression.DEFAULT_NULL;
+	private CellExpression expression = NullExpression.DEFAULT_NULL;
 
-	public Expression getExpression() {
+	public CellExpression getExpression() {
 		return expression;
 	}
 
-	public void setExpressionObj(Expression expression) {
+	public void setExpressionObj(CellExpression expression) {
 		this.setExpressionObj(expression, new ArrayList<>());
 	}
 
-	public void setExpressionObj(Expression expression, List<Cell> relatedCells) {
+	public void setExpressionObj(CellExpression expression, List<Cell> relatedCells) {
 		this.getContainer().beforeCellChange(this);
 		relatedCell.stream().forEach(c -> c.removeListener(this));
 		relatedCell.clear();
@@ -49,6 +50,11 @@ public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>
 		this.postAll(this);
 	}
 
+	public void linkCell(Cell targetCell) {
+		this.setExpressionObj(new BridgeExpression(targetCell,
+				"link to [" + targetCell.getRow().row + "," + targetCell.column + "]"));
+	}
+
 	public String getValue() {
 		return getExpression().getValue();
 	}
@@ -57,8 +63,8 @@ public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>
 		return getExpression().getNumberValue();
 	}
 
-	public String getRawString() {
-		return getExpression().getRawString();
+	public String getFormula() {
+		return getExpression().getFormula();
 	}
 
 	private boolean isEvaluating;
@@ -90,26 +96,32 @@ public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>
 
 	@Override
 	public void onChange(Event<Cell> event) {
-		this.getExpression().evaluate();
+		this.getExpression().resetEvaluate();
 	}
 
 	@Override
 	public String toString() {
 		return String.format(paddingFormat, getValue());
 	}
-	
+
 	public void setExpression(String expression) {
 		expression = expression.trim();
 		if (expression.startsWith("\"")) {
 			if (expression.length() <= 1) {
-				throw new ExpressionInvalidException("Invalid Input");
+				// throw new ExpressionInvalidException("Invalid Input");
+				// return false;
+				this.setExpressionObj(new BridgeExpression(new IlegalExpression(), expression));
+				return;
 			}
 			if (expression.endsWith("\"")) {
 				this.setValue(expression.substring(1, expression.length() - 1));
 			} else {
-				throw new ExpressionInvalidException("Invalid Input");
+				// throw new ExpressionInvalidException("Invalid Input");
+				// return false;
+				this.setExpressionObj(new BridgeExpression(new IlegalExpression(), expression));
 			}
 			return;
+			// return true;
 		}
 		Tokenizer.parseExpression(expression, this.getContainer(), this);
 	}

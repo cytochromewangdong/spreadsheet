@@ -4,17 +4,6 @@ import edu.mum.spreadsheet.ex.ExpressionInvalidException;
 
 public class IlegalExpression implements Expression {
 
-	private final String rawString;
-
-	public IlegalExpression(String rawString) {
-		super();
-		this.rawString = rawString;
-	}
-
-	@Override
-	public String getRawString() {
-		return rawString;
-	}
 
 	@Override
 	public String getValue() {

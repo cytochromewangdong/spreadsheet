@@ -1,12 +1,12 @@
 package edu.mum.spreadsheet.expression;
 
-public class StringValueExpression implements Expression {
+public class StringValueExpression implements CellExpression {
 	private final String value;
 
 	public StringValueExpression(String value) {
 		assert (value != null);
 		this.value = value;
-		
+
 	}
 
 	@Override
@@ -24,8 +24,8 @@ public class StringValueExpression implements Expression {
 	}
 
 	@Override
-	public String getRawString() {
-		return this.value;
+	public String getFormula() {
+		return "\"" + this.value + "\"";
 	}
 
 }

@@ -1,6 +1,6 @@
 package edu.mum.spreadsheet.expression;
 
-public class NumberValueExpression implements Expression {
+public class NumberValueExpression implements CellExpression {
 	private Number value;
 	private String rawString;
 	public NumberValueExpression(Number value) {
@@ -24,7 +24,7 @@ public class NumberValueExpression implements Expression {
 	}
 
 	@Override
-	public String getRawString() {
+	public String getFormula() {
 		return rawString;
 	}
 

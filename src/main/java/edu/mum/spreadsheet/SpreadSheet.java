@@ -5,8 +5,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import edu.mum.spreadsheet.ex.ExpressionInvalidException;
-
 public class SpreadSheet {
 	private Map<Integer, Row> data = new HashMap<>();
 
@@ -38,6 +36,10 @@ public class SpreadSheet {
 		currentCell.setExpression(expression);
 	}
 
+	public void linkCell(int srcRow, int srcColumn, int toRow, int toColumn) {
+		this.getCell(srcRow, srcColumn).linkCell(this.getCell(toRow, toColumn));
+	}
+
 	public void beforeCellChange(Cell cell) {
 
 	}
@@ -49,8 +51,6 @@ public class SpreadSheet {
 	@Override
 	public String toString() {
 		int max = data.keySet().stream().max(Integer::compareTo).orElseGet(() -> 0);
-		return IntStream.range(1, max + 1)
-				.mapToObj(idx -> getRow(idx).toString())
-				.collect(Collectors.joining("\n"));
+		return IntStream.range(1, max + 1).mapToObj(idx -> getRow(idx).toString()).collect(Collectors.joining("\n"));
 	}
 }

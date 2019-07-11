@@ -1,6 +1,6 @@
 package edu.mum.spreadsheet.expression;
 
-public class NullExpression implements Expression {
+public class NullExpression implements CellExpression {
 	public final static NullExpression DEFAULT_NULL = new NullExpression();
 
 	private NullExpression() {
@@ -18,7 +18,8 @@ public class NullExpression implements Expression {
 	}
 
 	@Override
-	public String getRawString() {
+	public String getFormula() {
 		return null;
 	}
+
 }

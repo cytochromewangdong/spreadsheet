@@ -8,7 +8,9 @@ import java.util.Stack;
 import java.util.stream.Collectors;
 
 import edu.mum.spreadsheet.ex.ExpressionInvalidException;
+import edu.mum.spreadsheet.expression.BridgeExpression;
 import edu.mum.spreadsheet.expression.Expression;
+import edu.mum.spreadsheet.expression.IlegalExpression;
 import edu.mum.spreadsheet.expression.NumberValueExpression;
 import edu.mum.spreadsheet.expression.SymbolToken;
 
@@ -157,28 +159,45 @@ public class Tokenizer {
 	}
 
 	public static void parseExpression(String expression, SpreadSheet sheet, Cell cell) {
-		List<Object> list = parseExpression(expression, sheet);
-		if (list.size() == 1 && list.get(0) instanceof NumberValueExpression) {
-			cell.setExpressionObj((NumberValueExpression) list.get(0));
-		} else {
-			List<Cell> related = list.stream().filter(e -> (e instanceof Cell)).map(e -> (Cell) e)
-					.collect(Collectors.toList());
-			Expression expressionObj = parseExpression(list);
-			cell.setExpressionObj(expressionObj, related);
-			cell.evaluate();
-		}
 
+		try {
+			List<Object> list = parseExpression(expression, sheet);
+			if (list.size() == 1 && list.get(0) instanceof NumberValueExpression) {
+				cell.setExpressionObj((NumberValueExpression) list.get(0));
+			} else {
+				List<Cell> related = list.stream().filter(e -> (e instanceof Cell)).map(e -> (Cell) e)
+						.collect(Collectors.toList());
+				Expression expressionObj = parseExpression(list);
+
+				cell.setExpressionObj(new BridgeExpression(expressionObj, expression), related);
+				// cell.evaluate();
+			}
+		} catch (Exception e) {
+			cell.setExpressionObj(new BridgeExpression(new IlegalExpression(), expression));
+		}
+		// return true;
 	}
 
 	public static void main(String[] args) {
 		SpreadSheet sheet = new SpreadSheet();
 		sheet.setCellValue(1, 2, 10.0);
 		sheet.setCellValue(2, 2, 66.0);
+		sheet.setCellValue(7, 2, 88);
 		sheet.setExpression(4, 2, "[7,2]");
-		sheet.setExpression(3, 2, "[4,2]");
+		System.out.println(sheet);
+		System.out.println("---------------");
+		// sheet.setExpression(3, 2, "[4,2]");
 		sheet.setExpression(7, 2, "[1,2]+[2,2]+[3,2]+[4,2]+[5,2]+199");
+
 		// parseExpression(Tokenizer.parseExpression("[1,2]+([2,2]+[3,2]+[4,2 ]+[5,2])+
 		// 99.9087", sheet));
+		System.out.println(sheet);
+		System.out.println("---------------");
+		// sheet.setExpression(4, 2, "[7,2]");
+		sheet.setCellValue(4, 2, 1);
+		sheet.setExpression(8, 2, "[1,2]asdfoiuoi()))+[2,2]+[3,2]+[4,2]+[5,2]+199");
+//		sheet.setExpression(9, 2, "[9,2]");
+		sheet.linkCell(9, 2, 8, 2);
 		System.out.println(sheet);
 	}
 }
