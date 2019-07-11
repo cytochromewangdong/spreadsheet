@@ -29,5 +29,6 @@ public class Director {
 		sheet.setCellValue(11, 2, 12);
 		sheet.setCellValue(12, 1, "Installments:");
 		sheet.setExpression(12, 2, "[9,2]/[10,2]/[11,2]");
+		sheet.linkCell(13, 2, 9, 2);
 	}
 }

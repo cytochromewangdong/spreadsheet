@@ -4,6 +4,11 @@ import edu.mum.spreadsheet.ex.ExpressionInvalidException;
 
 public class IlegalExpression implements Expression {
 
+	public static final IlegalExpression DEFAULT_INSTANCE = new IlegalExpression();
+
+	private IlegalExpression() {
+
+	}
 
 	@Override
 	public String getValue() {

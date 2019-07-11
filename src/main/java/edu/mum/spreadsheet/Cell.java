@@ -110,7 +110,7 @@ public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>
 			if (expression.length() <= 1) {
 				// throw new ExpressionInvalidException("Invalid Input");
 				// return false;
-				this.setExpressionObj(new BridgeExpression(new IlegalExpression(), expression));
+				this.setExpressionObj(new BridgeExpression(IlegalExpression.DEFAULT_INSTANCE, expression));
 				return;
 			}
 			if (expression.endsWith("\"")) {
@@ -118,7 +118,7 @@ public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>
 			} else {
 				// throw new ExpressionInvalidException("Invalid Input");
 				// return false;
-				this.setExpressionObj(new BridgeExpression(new IlegalExpression(), expression));
+				this.setExpressionObj(new BridgeExpression(IlegalExpression.DEFAULT_INSTANCE, expression));
 			}
 			return;
 			// return true;

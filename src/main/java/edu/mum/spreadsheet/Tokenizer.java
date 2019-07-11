@@ -173,7 +173,7 @@ public class Tokenizer {
 				// cell.evaluate();
 			}
 		} catch (Exception e) {
-			cell.setExpressionObj(new BridgeExpression(new IlegalExpression(), expression));
+			cell.setExpressionObj(new BridgeExpression(IlegalExpression.DEFAULT_INSTANCE, expression));
 		}
 		// return true;
 	}
