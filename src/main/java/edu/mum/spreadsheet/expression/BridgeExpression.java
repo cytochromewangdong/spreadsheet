@@ -5,11 +5,14 @@ import edu.mum.spreadsheet.ex.ExpressionInvalidException;
 public class BridgeExpression implements CellExpression {
 	protected Number cachedValue;
 	protected String lastException = null;
-
+	private boolean hasError;
+	@Override
+	public boolean hasError() {
+		return hasError;
+	}
 	protected boolean isEvaluating;
 	protected String rawString;
 	protected Expression childExpression;
-	
 
 	public BridgeExpression(Expression childExpression, String expression) {
 		this.childExpression = childExpression;
@@ -22,6 +25,7 @@ public class BridgeExpression implements CellExpression {
 
 	@Override
 	public String getValue() {
+		
 		if (cachedValue == null) {
 			try {
 				evaluate();
@@ -29,6 +33,7 @@ public class BridgeExpression implements CellExpression {
 //				ex.printStackTrace();
 			}
 		}
+		hasError = cachedValue == null;
 		return cachedValue == null ? "Error:" + this.getFormula() + ":[" + lastException + "]"
 				: this.cachedValue.toString();
 	}
@@ -69,6 +74,7 @@ public class BridgeExpression implements CellExpression {
 		} else {
 			this.lastException = "circular reference";
 		}
+
 	}
 
 }

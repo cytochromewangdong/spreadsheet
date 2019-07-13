@@ -28,8 +28,26 @@ public class Row extends ContainedSubject<Row> {
 	@Override
 	public String toString() {
 		int max = data.keySet().stream().max(Integer::compareTo).orElseGet(() -> 0);
-		return IntStream.range(1, max + 1)
-				.mapToObj(idx -> getCell(idx).toString())
-				.collect(Collectors.joining("\t"));
+		return IntStream.range(1, max + 1).mapToObj(idx -> getCell(idx).toString()).collect(Collectors.joining("\t"));
+	}
+
+	public String toFormulaString() {
+		int max = data.keySet().stream().max(Integer::compareTo).orElseGet(() -> 0);
+		return IntStream.range(1, max + 1).filter(idx->!getCell(idx).isEmptyExpression()).mapToObj(idx -> row + "," + idx + " = " + getCell(idx).getFormula())
+				.collect(Collectors.joining("\n"));
+	}
+
+	public String getValue(int column) {
+		if (!data.containsKey(column)) {
+			return "";
+		}
+		return data.get(column).getValue();
+	}
+
+	public String getFormula(int column) {
+		if (!data.containsKey(column)) {
+			return "";
+		}
+		return data.get(column).getFormula();
 	}
 }

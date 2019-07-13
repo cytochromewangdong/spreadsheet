@@ -1,9 +1,9 @@
 package edu.mum.spreadsheet.expression;
 
-public class NullExpression implements CellExpression {
-	public final static NullExpression DEFAULT_NULL = new NullExpression();
+public class EmptyExpression implements CellExpression {
+	public final static EmptyExpression DEFAULT_EMPTY = new EmptyExpression();
 
-	private NullExpression() {
+	private EmptyExpression() {
 
 	}
 
@@ -19,7 +19,7 @@ public class NullExpression implements CellExpression {
 
 	@Override
 	public String getFormula() {
-		return null;
+		return "";
 	}
 
 }

@@ -7,16 +7,20 @@ import edu.mum.spreadsheet.ex.CircularReferenceException;
 import edu.mum.spreadsheet.expression.BridgeExpression;
 import edu.mum.spreadsheet.expression.CellExpression;
 import edu.mum.spreadsheet.expression.IlegalExpression;
-import edu.mum.spreadsheet.expression.NullExpression;
+import edu.mum.spreadsheet.expression.EmptyExpression;
 import edu.mum.spreadsheet.expression.NumberValueExpression;
 import edu.mum.spreadsheet.expression.StringValueExpression;
 import edu.mum.spreadsheet.observer.Event;
 
-public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>, CellExpression {
+public class Cell extends ContainedSubject<Cell> implements StatusChangeListener<Cell>, CellExpression {
 
 	private static final String paddingFormat = "%-15s";
 	protected final int row;
 	protected final int column;
+	public int getColumn() {
+		return column;
+	}
+
 	protected List<Cell> relatedCell = new ArrayList<>();
 
 	public Cell(SpreadSheet container, int row, int column) {
@@ -25,11 +29,15 @@ public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>
 		this.column = column;
 	}
 
-	public Row getRow() {
-		return this.getContainer().getRow(this.row);
+	public boolean isEmptyExpression() {
+		return expression == EmptyExpression.DEFAULT_EMPTY;
 	}
 
-	private CellExpression expression = NullExpression.DEFAULT_NULL;
+	public int getRow() {
+		return this.row;//this.getContainer().getRow(this.row);
+	}
+
+	private CellExpression expression = EmptyExpression.DEFAULT_EMPTY;
 
 	public CellExpression getExpression() {
 		return expression;
@@ -46,13 +54,14 @@ public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>
 		this.expression = expression;
 		relatedCell.addAll(relatedCells);
 		relatedCell.stream().forEach(c -> c.registerListener(this));
-		this.getContainer().afterCellChange(this);
 		this.postAll(this);
+		this.getContainer().afterCellNotified(this);
+		
 	}
 
 	public void linkCell(Cell targetCell) {
 		this.setExpressionObj(new BridgeExpression(targetCell,
-				"link to [" + targetCell.getRow().row + "," + targetCell.column + "]"));
+				"[" + targetCell.getRow() + "," + targetCell.column + "]"));
 	}
 
 	public String getValue() {
@@ -97,14 +106,22 @@ public class Cell extends ContainedSubject<Cell> implements ChangeListener<Cell>
 	@Override
 	public void onChange(Event<Cell> event) {
 		this.getExpression().resetEvaluate();
+		this.postAll(this);
+		this.getContainer().notifyChanged(this);
 	}
 
 	@Override
 	public String toString() {
 		return String.format(paddingFormat, getValue());
 	}
-
+	public boolean hasError() {
+		return this.expression.hasError();
+	}
 	public void setExpression(String expression) {
+		if (expression == null || expression.trim().length() == 0) {
+			this.setExpressionObj(EmptyExpression.DEFAULT_EMPTY);
+			return;
+		}
 		expression = expression.trim();
 		if (expression.startsWith("\"")) {
 			if (expression.length() <= 1) {

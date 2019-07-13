@@ -1,0 +1,193 @@
+<html lang="en">
+<head>
+<script src="jquery-3.4.1.min.js"></script>
+<link rel="stylesheet" href="bootstrap.min.css">
+<style>
+#Test {
+	position: absolute;
+	visibility: hidden;
+	height: auto;
+	width: auto;
+	white-space: nowrap; /* Thanks to Herb Caudill comment */
+}
+
+/* th {
+	width: 50px;
+} */
+.table td, .table th {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	min-width: 100px;
+	max-width: 100px;
+}
+
+td.inplaceEdit div {
+	display: none
+}
+
+td.inplaceEdit input {
+	display: block;
+	overflow: visible;
+	z-index: 10000;
+}
+
+td.inplaceEdit {
+	overflow: visible;
+	max-width: 300px;
+}
+
+td input {
+	display: none
+}
+
+.hideEdit  input {
+	display: none
+}
+
+tr {
+	overflow: visible;
+}
+.error {
+	background-color:red;
+}
+body {
+	-webkit-touch-callout: none; /* iOS Safari */
+	-webkit-user-select: none; /* Safari */
+	-khtml-user-select: none; /* Konqueror HTML */
+	-moz-user-select: none; /* Firefox */
+	-ms-user-select: none; /* Internet Explorer/Edge */
+	user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+</style>
+<script>
+	function getTextWidth(text, font) {
+		// re-use canvas object for better performance
+		var font = font || '12px arial';
+		var canvas = getTextWidth.canvas
+				|| (getTextWidth.canvas = document.createElement("canvas"));
+		var context = canvas.getContext("2d");
+		context.font = font;
+		var metrics = context.measureText(text);
+		return metrics.width;
+	}
+	function callback(idx) {
+
+		var l = idx.length / 2;
+		for (var i = 0; i < l; i++) {
+			var row = idx[i * 2];
+			var column = idx[i * 2 + 1];
+			$("#topEdit").val(row);
+			var cell = app.getCell(row, column);
+			$('#r' + row + "c" + column).text(cell.getValue());
+			if (cell.hasError()) {
+				$('#r' + row + "c" + column).addClass("error");
+			} else{
+				$('#r' + row + "c" + column).removeClass("error");
+			}
+
+		}
+	}
+	function start() {
+		//$(".container")
+		var columnNum = 20;
+		var tbl = "<table class='table table-bordered table-dark'><tbody>"
+		tbl += "<thead><tr>"
+		tbl += "<th>X</th>"
+		for (var i = 1; i <= columnNum; i++) {
+			tbl += "<th>" + i + "</th>"
+		}
+		tbl += "</tr></thead>"
+		for (var row = 1; row <= 100; row++) {
+			tbl += "<tr><td>" + row + "</td>"
+			for (var i = 1; i <= columnNum; i++) {
+				tbl += "<td class='cell' row='" +row+"' column='" + i+ "' > <div id='r"+row+"c"+i+"'>"
+						+ app.getValue(row, i) + "<div></td>"
+			}
+			tbl += "</tr>"
+		}
+		tbl += "</tbody></table>"
+		$(".spreedtable").html(tbl);
+		var inplaceEdit = "#inplaceEdit";
+		//$(inplaceEdit).hide();
+		//$("#debug").val(tbl);
+		$(".cell").on('dblclick', function() {
+			$(this).append($(inplaceEdit));
+			//$("#ts").attr('row', $(this).attr('row'));
+			//$("#ts").attr('column', $(this).attr('column'));
+			var row = parseInt($(this).attr('row'));
+			var column = parseInt($(this).attr('column'));
+			var text = app.getFormula(row, column);
+			$(inplaceEdit).val(text);
+			$(inplaceEdit).width(getTextWidth(text) + 50);
+			$(this).addClass("inplaceEdit");
+			$(inplaceEdit).focus();
+		});
+		$(".cell").on('click', function() {
+			//$("#ts").attr('row', $(this).attr('row'));
+			//$("#ts").attr('column', $(this).attr('column'));
+			var row = parseInt($(this).attr('row'));
+			var column = parseInt($(this).attr('column'));
+			var text = app.getFormula(row, column);
+			$(".status").text(text);
+		});
+		$(inplaceEdit).click(function(event) {
+			event.stopPropagation();
+			// Do something
+		});
+		//$(inplaceEdit).on('focus', function() {
+
+		//var $this = $(this);
+		//$this.select();
+
+		// Work around Chrome's little problem
+		//$("#ts").val($("#ts").attr('row')+","+$("#ts").attr('column'));
+		//})
+		var handleSubmit = function() {
+			var row = parseInt($(this).parent().attr('row'));
+			var column = parseInt($(this).parent().attr('column'));
+			var value = $(this).val();
+			var $This = $(this);
+			setTimeout(function() {
+				$This.parent().removeClass("inplaceEdit");
+				app.getCell(row, column).setExpression(value);
+				//$('#r' + row + "c" + column).text(app.getValue(row, column));
+			}, 0);
+		}
+		$(inplaceEdit).on('blur', function() {
+			handleSubmit.apply(this);
+		})
+		$(inplaceEdit).on('input', function() {
+			$(".status").text($(this).val());
+			//$("#ts").val(app.getCell(row,column).getFormula());
+			//$("#ts").val($("#ts").attr('row')+","+$("#ts").attr('column'));
+		})
+		$(inplaceEdit).on("keypress", function(e) {
+			if (e.keyCode == 13) {
+				handleSubmit.apply(this);
+				return false; // prevent the button click from happening
+			}
+		});
+		//onfocus="ts.value = app.getCell(7,2).getFormula()"
+		//onfocusout="ts.value = app.getCell(7,2).getValue()"
+		//onchange="app.getCell(7,2).setExpression(ts.value);"
+	}
+</script>
+</head>
+<body>
+	<div id="Test">
+		abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ</div>
+	<input type="text" value="test" style="display: none" id="topEdit">
+	<div class="hideEdit">
+		<input type="text" value="test" id="inplaceEdit">
+	</div>
+	<div class="container">
+		<ul class="nav justify-content-left">
+			<li class="nav-item" style="padding-right: 15px; font-weight: bold">Formula:</li>
+			<li class="nav-item status" style="color: purple">status</li>
+		</ul>
+		<div class="spreedtable  table-responsive"></div>
+	</div>
+</body>
+</html>
