@@ -61,17 +61,16 @@ public class Tokenizer {
 			if (o instanceof Character) {
 				Character c = (Character) o;
 				if (c.equals(rightParenthesis)) {
-					SymbolToken token = (SymbolToken) symbolStack.pop();
-					//
-					if (!leftParenthesis.equals(symbolStack.pop())) {
-						throw new ExpressionInvalidException("Invalid exception!");
+					Object so = symbolStack.pop();
+					if (leftParenthesis.equals(so)) {
+						Expression one = (Expression) eleStack.pop();
+						if (!leftParenthesis.equals(eleStack.pop())) {
+							throw new ExpressionInvalidException("Invalid exception!");
+						}
+						eleStack.push(one);
+					} else {
+						drainIt(eleStack, symbolStack, leftParenthesis, so);
 					}
-					Expression right = (Expression) eleStack.pop();
-					Expression left = (Expression) eleStack.pop();
-					if (!leftParenthesis.equals(eleStack.pop())) {
-						throw new ExpressionInvalidException("Invalid exception!");
-					}
-					eleStack.push(token.create(left, right));
 					continue;
 				} else {
 					// leftParenthesis
@@ -92,6 +91,30 @@ public class Tokenizer {
 			throw new ExpressionInvalidException("Invalid exception!");
 		}
 		return (Expression) eleStack.pop();
+	}
+
+	private static void drainIt(Stack<Object> eleStack, Stack<Object> symbolStack, Character leftParenthesis,
+			Object so) {
+		SymbolToken token = (SymbolToken) so;// symbolStack.pop();
+		//
+		boolean finished = false;
+		Object nb =symbolStack.pop();
+		if (leftParenthesis.equals(nb)) {
+			// throw new ExpressionInvalidException("Invalid exception!");
+			finished = true;
+		}
+		Expression right = (Expression) eleStack.pop();
+		Expression left = (Expression) eleStack.pop();
+		if (finished) {
+			if (!leftParenthesis.equals(eleStack.pop())) {
+				throw new ExpressionInvalidException("Invalid exception!");
+			}
+		}
+		eleStack.push(token.create(left, right));
+		if(!finished)
+		{
+			drainIt(eleStack, symbolStack,leftParenthesis,nb);
+		}
 	}
 
 	private static List<Object> parseExpression(String expression, SpreadSheet sheet) {
